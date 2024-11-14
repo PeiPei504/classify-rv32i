@@ -25,12 +25,24 @@ argmax:
     li t6, 1
     blt a1, t6, handle_error
 
-    lw t0, 0(a0)
+    lw t0, 0(a0)       # t0: current max value 
+    li t1, 0          # t1: index of max value
+    li t2, 1          # t2: loop counter
 
-    li t1, 0
-    li t2, 1
-loop_start:
-    # TODO: Add your own implementation
+loop:
+    beq t2, a1, done   # if counter == length, exit
+    lw t3, 4(a0)       # load next element
+    ble t3, t0, skip   # if element <= max, skip
+    mv t0, t3          # update max value
+    mv t1, t2          # update max index
+skip:
+    addi a0, a0, 4     # move to next element
+    addi t2, t2, 1     # increment counter
+    j loop
+
+done:
+    mv a0, t1          # return max index
+    jr ra
 
 handle_error:
     li a0, 36
