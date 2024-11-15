@@ -63,6 +63,18 @@ write_matrix:
 
     # mul s4, s2, s3   # s4 = total elements
     # FIXME: Replace 'mul' with your own implementation
+    li s4, 0            # 初始化結果 s4 = 0
+    beq s2, zero, multiply_done  # 如果行數是0，直接結束
+    beq s3, zero, multiply_done  # 如果列數是0，直接結束
+    mv t0, s2           # 將行數複製到 t0 作為計數器
+
+    multiply_loop:
+    beq t0, zero, multiply_done  # 如果計數器 = 0，跳到完成
+    add s4, s4, s3      # s4 = s4 + s3 (加上列數)
+    addi t0, t0, -1     # counter-1
+    j multiply_loop     
+
+    multiply_done:        
 
     # write matrix data to file
     mv a0, s0
