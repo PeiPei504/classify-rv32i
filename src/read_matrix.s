@@ -76,6 +76,18 @@ read_matrix:
 
     # mul s1, t1, t2   # s1 is number of elements
     # FIXME: Replace 'mul' with your own implementation
+    li s1, 0            # 初始化結果 s1 = 0
+    beq t1, zero, multiply_done  # 如果行數是0，直接結束
+    beq t2, zero, multiply_done  # 如果列數是0，直接結束
+    mv t3, t1           # 將行數複製到 t3 作為計數器
+
+    multiply_loop:
+    beq t3, zero, multiply_done  # 如果計數器 = 0，跳到完成
+    add s1, s1, t2      # s1 = s1 + t2 (加上列數)
+    addi t3, t3, -1     # 計數器減1
+    j multiply_loop     # 繼續循環
+
+    multiply_done:          # 乘法完成，程式會繼續執行後面的指令
 
     slli t3, s1, 2
     sw t3, 24(sp)    # size in bytes
