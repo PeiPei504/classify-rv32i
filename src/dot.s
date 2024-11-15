@@ -36,6 +36,25 @@ dot:
 
 loop_start:
     bge t1, a2, loop_end
+     # Calculate the offset address of the first array
+    mul t2, t1, a3        # t2 = i * stride0
+    slli t2, t2, 2        # t2 = t2 * 4 (因為每個int是4字節)
+    add t2, a0, t2        # t2 = arr0 + offset
+    lw t3, 0(t2)          # t3 = arr0[i * stride0]
+
+    # Calculate the offset address of the second array
+    mul t4, t1, a4        # t4 = i * stride1
+    slli t4, t4, 2        # t4 = t4 * 4
+    add t4, a1, t4        # t4 = arr1 + offset
+    lw t5, 0(t4)          # t5 = arr1[i * stride1]
+
+    # Calculate the product and add it to the result
+    mul t6, t3, t5        # t6 = arr0[i * stride0] * arr1[i * stride1]
+    add t0, t0, t6        # sum += t6
+
+    # Increment the loop counter
+    addi t1, t1, 1        # i++
+    j loop_start
     # TODO: Add your own implementation
 
 loop_end:
