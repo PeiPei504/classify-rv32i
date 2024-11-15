@@ -116,6 +116,26 @@ inner_loop_start:
     
 inner_loop_end:
     # TODO: Add your own implementation
+    # 計算下一行的偏移量 (cols0 * 4)
+    slli t0, a2, 2        # t0 = cols0 * 4
+    add s3, s3, t0        # 更新矩陣A的指針到下一行
+
+    addi s0, s0, 1        # 增加外層循環計數器
+    j outer_loop_start    # 跳回外層循環開始
+    
+outer_loop_end:
+    # Epilogue：恢復保存的暫存器
+    lw ra, 0(sp)
+    lw s0, 4(sp)
+    lw s1, 8(sp)
+    lw s2, 12(sp)
+    lw s3, 16(sp)
+    lw s4, 20(sp)
+    lw s5, 24(sp)
+    addi sp, sp, 28
+    
+    ret
+    
 
 error:
     li a0, 38
