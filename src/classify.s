@@ -167,6 +167,19 @@ classify:
     lw t0, 0(s3)
     lw t1, 0(s8)
     # mul a0, t0, t1 # FIXME: Replace 'mul' with your own implementation
+    li a0, 0          # 結果
+    beqz t0, mul1_done
+    beqz t1, mul1_done
+mul1_loop:
+    andi t2, t1, 1    # 用來檢查最後一位
+    beqz t2, mul1_skip
+    add a0, a0, t0    # 如果最後一位是1，加上t0
+mul1_skip:
+    slli t0, t0, 1    # t0左移
+    srli t1, t1, 1    # t1右移
+    bnez t1, mul1_loop
+mul1_done:
+
     slli a0, a0, 2
     jal malloc 
     beq a0, x0, error_malloc
@@ -205,7 +218,19 @@ classify:
     lw t1, 0(s8)
     # mul a1, t0, t1 # length of h array and set it as second argument
     # FIXME: Replace 'mul' with your own implementation
-    
+    li a1, 0 
+    beqz t0, mul2_done
+    beqz t1, mul2_done
+mul2_loop:
+    andi t2, t1, 1
+    beqz t2, mul2_skip
+    add a1, a1, t0
+mul2_skip:
+    slli t0, t0, 1
+    srli t1, t1, 1
+    bnez t1, mul2_loop
+mul2_done:
+
     jal relu
     
     lw a0, 0(sp)
@@ -227,6 +252,18 @@ classify:
     lw t0, 0(s3)
     lw t1, 0(s6)
     # mul a0, t0, t1 # FIXME: Replace 'mul' with your own implementation
+    li a0, 0
+    beqz t0, mul3_done
+    beqz t1, mul3_done
+mul3_loop:
+    andi t2, t1, 1
+    beqz t2, mul3_skip
+    add a0, a0, t0
+mul3_skip:
+    slli t0, t0, 1
+    srli t1, t1, 1
+    bnez t1, mul3_loop
+mul3_done:
     slli a0, a0, 2
     jal malloc 
     beq a0, x0, error_malloc
@@ -235,8 +272,8 @@ classify:
     mv a6, a0 # o
     
     mv a0, s1 # move m1 array to first arg
-    lw a1, 0(s5) # move m1 rows to second arg
-    lw a2, 0(s6) # move m1 cols to third arg
+    lw a1, 0(s5) # 將矩陣 M1 的列數移動到第二個參數
+    lw a2, 0(s6) # 將矩陣 M1 的行數移動到第三個參數
     
     mv a3, s9 # move h array to fourth arg
     lw a4, 0(s3) # move h rows to fifth arg
@@ -286,9 +323,20 @@ classify:
     mv a0, s10 # load o array into first arg
     lw t0, 0(s3)
     lw t1, 0(s6)
-    mul a1, t0, t1 # load length of array into second arg
+    # mul a1, t0, t1 # load length of array into second arg
     # FIXME: Replace 'mul' with your own implementation
-    
+    li a1, 0
+    beqz t0, mul4_done
+    beqz t1, mul4_done
+mul4_loop:
+    andi t2, t1, 1
+    beqz t2, mul4_skip
+    add a1, a1, t0
+mul4_skip:
+    slli t0, t0, 1
+    srli t1, t1, 1
+    bnez t1, mul4_loop
+mul4_done:
     jal argmax
     
     mv t0, a0 # move return value of argmax into t0
