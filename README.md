@@ -83,6 +83,34 @@ Then, `t2` and `t4` are shifted left by 2 bits (using `slli`), effectively multi
 - `t6`: Stores the product of `t3` and `t5` (i.e., `arr0[i] * arr1[i]`).
 - The result in `t6` is added to the accumulated sum (`t0`).
 
+## Part B: File Operations and Main
+### Read Matrix
+This code shows how to use low-level programming to work with files, allocate memory, and process data. It also includes proper error handling for different situations.
+
+### Execution Flow
+
+1. **Function Setup**:  
+   - Saves registers (`ra`, `s0~s4`) on the stack to protect their values during the function.
+
+2. **Opening the File**:  
+   - Uses `fopen` to open the file. If it fails, the code jumps to `fopen_error`.  
+   - Reads the file header to get the number of rows and columns, storing them in the provided memory addresses.
+
+3. **Allocating Memory for the Matrix**:  
+   - Calculates the total number of elements (`rows × columns`).  
+   - Converts this to the required memory size in bytes (`total elements × 4`).  
+   - Calls `malloc` to allocate memory. If it fails, the code jumps to `malloc_error`.
+
+4. **Reading Matrix Data**:  
+   - Reads the matrix data from the file into the allocated memory.  
+   - If the number of bytes read is incorrect, it jumps to `fread_error`.
+
+5. **Closing the File**:  
+   - Uses `fclose` to close the file. If it fails, the code jumps to `fclose_error`.
+
+6. **Function Cleanup**:  
+   - Restores the saved registers and stack, then returns the pointer to the allocated matrix.
+
 ## Result
 ```bash
 test_abs_minus_one (__main__.TestAbs.test_abs_minus_one) ... ok
