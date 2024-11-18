@@ -89,27 +89,75 @@ This code shows how to use low-level programming to work with files, allocate me
 
 ### Execution Flow
 
-1. **Function Setup**:  
+1. Function Setup:  
    - Saves registers (`ra`, `s0~s4`) on the stack to protect their values during the function.
 
-2. **Opening the File**:  
+2. Opening the File:  
    - Uses `fopen` to open the file. If it fails, the code jumps to `fopen_error`.  
    - Reads the file header to get the number of rows and columns, storing them in the provided memory addresses.
 
-3. **Allocating Memory for the Matrix**:  
+3. Allocating Memory for the Matrix:  
    - Calculates the total number of elements (`rows × columns`).  
    - Converts this to the required memory size in bytes (`total elements × 4`).  
    - Calls `malloc` to allocate memory. If it fails, the code jumps to `malloc_error`.
 
-4. **Reading Matrix Data**:  
+4. Reading Matrix Data:  
    - Reads the matrix data from the file into the allocated memory.  
    - If the number of bytes read is incorrect, it jumps to `fread_error`.
 
-5. **Closing the File**:  
+5. Closing the File:  
    - Uses `fclose` to close the file. If it fails, the code jumps to `fclose_error`.
 
-6. **Function Cleanup**:  
+6. Function Cleanup:  
    - Restores the saved registers and stack, then returns the pointer to the allocated matrix.
+
+### Write Matrix
+The number of rows and columns of the matrix needs to be stored in the file as 4-byte integers:
+```bash
+sw s2, 24(sp)      # Store the number of rows on the stack
+sw s3, 28(sp)      # Store the number of columns on the stack
+mv a0, s0          # File descriptor
+addi a1, sp, 24    # Pass the pointer to the rows and columns to fwrite
+li a2, 2           # Write two elements (rows and columns)
+li a3, 4           # Each element is 4 bytes
+jal fwrite         # Call fwrite
+```
+
+If the number of elements written by fwrite is not equal to 2, an error is considered to have occurred:
+```bash
+li t0, 2
+bne a0, t0, fwrite_error
+```
+
+### Calculating the Total Number of Matrix Elements
+The total number of elements in the matrix (rows × columns) is calculated using a custom implementation of multiplication (since the mul instruction is not used):
+```bash
+li s4, 0           # Initialize the result to 0
+beq s2, zero, multiply_done  # If rows or columns are 0, the result is 0
+beq s3, zero, multiply_done
+mv t0, s2          # Use t0 as a counter for rows
+
+multiply_loop:
+    beq t0, zero, multiply_done  # Exit if t0 = 0
+    add s4, s4, s3      # s4 = s4 + columns (accumulate)
+    addi t0, t0, -1     # Decrement the counter
+    j multiply_loop      # Repeat the loop
+```
+The final result, s4, is the total number of elements in the matrix.
+
+### Writing Matrix Data
+The matrix data is stored in row-major order and written to the file:
+```bash
+mv a0, s0          # File descriptor
+mv a1, s1          # Pointer to the matrix data
+mv a2, s4          # Total number of elements
+li a3, 4           # Each element is 4 bytes
+jal fwrite         # Call fwrite
+```
+If the number of elements written is less than s4, an error is considered to have occurred:
+```bash
+bne a0, s4, fwrite_error
+```
 
 ## Result
 ```bash
